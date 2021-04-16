@@ -39,6 +39,18 @@ var mapping = []struct {
 	{B, "B"},
 }
 
+// NewFileSize return a FileSize from string.
+func NewFileSize(s string) (FileSize, error) {
+	var fs FileSize
+	err := fs.unmarshal([]byte(s))
+	return fs, err
+}
+
+// String return the string format of FileSize.
+func (u FileSize) String() string {
+	return u.marshal()
+}
+
 // UnmarshalYAML implements the yaml.Unmarshaler interface.
 func (u *FileSize) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var s string
@@ -50,7 +62,7 @@ func (u *FileSize) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 // MarshalYAML implements the yaml.Marshaler interface.
 func (u FileSize) MarshalYAML() (interface{}, error) {
-	return u.marshal()
+	return u.marshal(), nil
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
@@ -68,22 +80,15 @@ func (u *FileSize) UnmarshalJSON(b []byte) error {
 
 // MarshalJSON implements the json.Marshaler interface.
 func (u FileSize) MarshalJSON() ([]byte, error) {
-	s, err := u.marshal()
-	if err != nil {
-		return nil, err
-	}
+	s := u.marshal()
 	return []byte(`"` + s + `"`), nil
-}
-
-func (u FileSize) String() string {
-	s, _ := u.marshal()
-	return s
 }
 
 func (u *FileSize) unmarshal(in []byte) error {
 	i := len(in)
 	if i == 0 {
 		*u = 0
+		return nil
 	}
 
 	for i--; i >= 0; i-- {
@@ -116,9 +121,9 @@ func (u *FileSize) unmarshal(in []byte) error {
 	return fmt.Errorf("invalid unit in FileSize:`%s`", in)
 }
 
-func (u FileSize) marshal() (string, error) {
+func (u FileSize) marshal() string {
 	if u == 0 {
-		return "0B", nil
+		return "0B"
 	}
 
 	positive := FileSize(1)
@@ -129,10 +134,10 @@ func (u FileSize) marshal() (string, error) {
 
 	for _, v := range mapping {
 		if u%v.baseSize == 0 {
-			return fmt.Sprintf("%d%s", positive*u/v.baseSize, v.unit), nil
+			return fmt.Sprintf("%d%s", positive*u/v.baseSize, v.unit)
 		}
 	}
-	return fmt.Sprintf("%dB", positive*u), nil
+	return fmt.Sprintf("%dB", positive*u)
 }
 
 func isDigital(b byte) bool {

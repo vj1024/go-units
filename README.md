@@ -20,26 +20,29 @@ Conveniently marshal/unmarshal units to/from json and yaml.
 package main
 
 import (
-        "encoding/json"
-        "fmt"
-        "github.com/vj1024/go-units"
+	"encoding/json"
+	"fmt"
+	"github.com/vj1024/go-units"
 )
 
 func main() {
-        // Marshal json
-        v := map[string]interface{}{
-                "size1": 10 * units.KB,
-                "size2": 10 * units.MB,
-        }
-        bs, _ := json.Marshal(&v)
-        fmt.Printf("marshal result: %s\n", bs) // marshal result: {"size1":"10KB","size2":"10MB"}
+	size, _ := units.NewFileSize("2KB")
+	fmt.Printf("size: %d\n", int(size)) // size: 2048
 
-        // Unmarshal json
-        var st struct {
-                Size1 units.FileSize `json:"size1"`
-                Size2 units.FileSize `json:"size2"`
-        }
-        _ = json.Unmarshal(bs, &st)
-        fmt.Printf("unmarshal result size1:%d, size2:%d\n", st.Size1, st.Size2) // unmarshal result size1:10240, size2:10485760
+	// Marshal json
+	v := map[string]interface{}{
+		"size1": 10 * units.KB,
+		"size2": 10 * units.MB,
+	}
+	bs, _ := json.Marshal(&v)
+	fmt.Printf("marshal result: %s\n", bs) // marshal result: {"size1":"10KB","size2":"10MB"}
+
+	// Unmarshal json
+	var st struct {
+		Size1 units.FileSize `json:"size1"`
+		Size2 units.FileSize `json:"size2"`
+	}
+	_ = json.Unmarshal(bs, &st)
+	fmt.Printf("unmarshal result size1:%d, size2:%d\n", st.Size1, st.Size2) // unmarshal result size1:10240, size2:10485760
 }
 ```

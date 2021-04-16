@@ -7,6 +7,35 @@ import (
 	"testing"
 )
 
+func TestNewFileSize(t *testing.T) {
+	testCase := []struct {
+		expected FileSize
+		strFmt   string
+	}{
+		{0, ""},
+		{0, "0B"},
+		{1, "1B"},
+		{1024, "1KB"},
+		{2 * 1024 * 1024, "2MB"},
+		{100 * GB, "100GB"},
+		{1024 * GB, "1TB"},
+		{1026 * GB, "1026GB"},
+		{123 * PB, "123PB"},
+
+		{-1 * GB, "-1GB"},
+		{-10 * MB, "-10MB"},
+
+		{123 * B, "123B"},
+		{-123 * B, "-123B"},
+	}
+
+	for _, v := range testCase {
+		got, err := NewFileSize(v.strFmt)
+		t.Logf("parse from string:%s, got_int:%d, got_str:%s", v.strFmt, int(got), got)
+		assert.Nil(t, err)
+		assert.Equal(t, v.expected, got)
+	}
+}
 func TestFileSize_MarshalYAML(t *testing.T) {
 	testCase := []struct {
 		fileSize FileSize
@@ -20,6 +49,12 @@ func TestFileSize_MarshalYAML(t *testing.T) {
 		{1024 * GB, "1TB"},
 		{1026 * GB, "1026GB"},
 		{123 * PB, "123PB"},
+
+		{-1 * GB, "-1GB"},
+		{-10 * MB, "-10MB"},
+
+		{123 * B, "123B"},
+		{-123 * B, "-123B"},
 	}
 
 	for _, v := range testCase {
@@ -49,6 +84,12 @@ func TestFileSize_UnmarshalYAML(t *testing.T) {
 		{1024 * GB, "1TB"},
 		{1026 * GB, "1026GB"},
 		{123 * PB, "123PB"},
+
+		{-1 * GB, "-1GB"},
+		{-10 * MB, "-10MB"},
+
+		{123 * B, "123"},
+		{-123 * B, "-123"},
 	}
 
 	type Tmp struct {
